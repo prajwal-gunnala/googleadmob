@@ -4,6 +4,8 @@ import 'banner_ad.dart';
 import 'full_page_ad.dart';
 import 'reward_ad.dart';
 import 'models/reward_tracker.dart';
+import 'pages/photos_page.dart';
+import 'pages/videos_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -115,6 +117,54 @@ class _MyHomePageState extends State<MyHomePage> {
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Photos button
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PhotosPage()),
+                          );
+                        },
+                        icon: const Icon(Icons.photo_library),
+                        label: const Text('Photos'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Videos button
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const VideosPage()),
+                          );
+                        },
+                        icon: const Icon(Icons.videocam),
+                        label: const Text('Videos'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                     ),
                     
