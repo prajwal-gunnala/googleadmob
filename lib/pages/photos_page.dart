@@ -299,12 +299,6 @@ class _PhotosPageState extends State<PhotosPage> {
             : null,
         actions: _isSelectionMode
             ? [
-                if (_selectedPhotoIds.length == 2)
-                  IconButton(
-                    icon: const Icon(Icons.collections),
-                    tooltip: 'Create Collage',
-                    onPressed: _createCollageFromSelected,
-                  ),
                 IconButton(
                   icon: const Icon(Icons.delete),
                   tooltip: 'Delete Selected',
@@ -324,25 +318,71 @@ class _PhotosPageState extends State<PhotosPage> {
                   ),
               ],
       ),
-      body: _isLoading
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading photos...'),
-                ],
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Container(
+                width: double.infinity,
+                color: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: const Text(
+                  'Select two photos to make a collage.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            )
-          : _photos.isEmpty
-              ? _buildEmptyState()
-              : _buildPhotoGrid(),
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('Loading photos...'),
+                          ],
+                        ),
+                      )
+                    : _photos.isEmpty
+                        ? _buildEmptyState()
+                        : _buildPhotoGrid(),
+              ),
+            ],
+          ),
+          if (_isSelectionMode && _selectedPhotoIds.length == 2)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.black,
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton.icon(
+                  onPressed: _createCollageFromSelected,
+                  icon: const Icon(Icons.collections, color: Colors.white),
+                  label: const Text('Make Collage', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
       floatingActionButton: _isSelectionMode 
           ? null 
           : FloatingActionButton(
               onPressed: _showUploadOptions,
-              child: const Icon(Icons.add_a_photo),
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add_a_photo, color: Colors.white),
             ),
     );
   }
@@ -378,9 +418,11 @@ class _PhotosPageState extends State<PhotosPage> {
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: _showUploadOptions,
-            icon: const Icon(Icons.add_a_photo),
-            label: const Text('Add Photo'),
+            icon: const Icon(Icons.add_a_photo, color: Colors.white),
+            label: const Text('Add Photo', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),

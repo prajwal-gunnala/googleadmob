@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'app_open_ad_manager.dart';
-import 'home_page.dart';
+import 'main_tab_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   void _navigateToHome() {
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MyHomePage()),
+        MaterialPageRoute(builder: (context) => const MainTabPage()),
       );
     }
   }

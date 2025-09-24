@@ -392,4 +392,8 @@ class PhotoService {
     }
     return null;
   }
+
+  Future<PhotoModel> saveCroppedPhoto(File file) async {
+    return await _savePhoto(file);
+  }
 }

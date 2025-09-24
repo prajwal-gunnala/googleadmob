@@ -190,148 +190,164 @@ class _VideoTrimPageState extends State<VideoTrimPage> {
                       child: Container(
                         color: Colors.grey.shade900,
                         padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            // Play/Pause button
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_controller!.value.isPlaying) {
-                                        _controller!.pause();
-                                      } else {
-                                        _controller!.play();
-                                      }
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _controller!.value.isPlaying
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 32,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Progress bar
-                            Row(
-                              children: [
-                                Text(
-                                  _formatDuration(_currentPosition),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                Expanded(
-                                  child: Slider(
-                                    value: _currentPosition.inMilliseconds.toDouble(),
-                                    max: _controller!.value.duration.inMilliseconds.toDouble(),
-                                    onChanged: (value) {
-                                      final position = Duration(milliseconds: value.toInt());
-                                      _seekTo(position);
-                                    },
-                                  ),
-                                ),
-                                Text(
-                                  _formatDuration(_controller!.value.duration),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Trim controls
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      const Text(
-                                        'Start Time',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      Text(
-                                        _formatDuration(_startTime),
-                                        style: const TextStyle(
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _startTime = _currentPosition;
-                                          });
-                                        },
-                                        child: const Text('Set Start'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      const Text(
-                                        'End Time',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      Text(
-                                        _formatDuration(_endTime),
-                                        style: const TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _endTime = _currentPosition;
-                                          });
-                                        },
-                                        child: const Text('Set End'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Trim info
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade800,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Play/Pause button
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    'Trimmed Duration: ${_formatDuration(_endTime - _startTime)}',
-                                    style: const TextStyle(
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_controller!.value.isPlaying) {
+                                          _controller!.pause();
+                                        } else {
+                                          _controller!.play();
+                                        }
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _controller!.value.isPlaying
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Original: ${widget.video.durationFormatted}',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade400,
-                                      fontSize: 12,
+                                      size: 32,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                              
+                              const SizedBox(height: 16),
+                              
+                              // Progress bar
+                              Row(
+                                children: [
+                                  Text(
+                                    _formatDuration(_currentPosition),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  Expanded(
+                                    child: Slider(
+                                      value: _currentPosition.inMilliseconds.toDouble(),
+                                      max: _controller!.value.duration.inMilliseconds.toDouble(),
+                                      onChanged: (value) {
+                                        final position = Duration(milliseconds: value.toInt());
+                                        _seekTo(position);
+                                      },
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDuration(_controller!.value.duration),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
+                              // Trim controls
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        const Text(
+                                          'Start Time',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        Text(
+                                          _formatDuration(_startTime),
+                                          style: const TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _startTime = _currentPosition;
+                                            });
+                                          },
+                                          child: const Text('Set Start'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        const Text(
+                                          'End Time',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        Text(
+                                          _formatDuration(_endTime),
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _endTime = _currentPosition;
+                                            });
+                                          },
+                                          child: const Text('Set End'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
+                              // Trim info
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade800,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Trimmed Duration: ${_formatDuration(_endTime - _startTime)}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Original: ${widget.video.durationFormatted}',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade400,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: _isProcessing ? null : _trimVideo,
+                                  icon: const Icon(Icons.cut),
+                                  label: const Text('Trim & Save'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

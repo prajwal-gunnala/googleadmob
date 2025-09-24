@@ -82,32 +82,16 @@ class _ImageCropPageState extends State<ImageCropPage> {
         height: _cropHeight.round(),
       );
 
-      // Save the cropped image
+      // Save the cropped image using PhotoService
+      final tempDir = Directory.systemTemp;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileName = 'cropped_photo_$timestamp.jpg';
-      final originalPath = '${await _getPhotosDir()}/$fileName';
-
+      final tempPath = '${tempDir.path}/$fileName';
       final croppedBytes = img.encodeJpg(croppedImage, quality: 90);
-      await File(originalPath).writeAsBytes(croppedBytes);
+      await File(tempPath).writeAsBytes(croppedBytes);
 
-      // Create thumbnail
-      final thumbnailPath = await _createThumbnail(File(originalPath), fileName);
-
-      // Get file size
-      final fileSize = await File(originalPath).length();
-
-      // Create photo model
-      final croppedPhoto = PhotoModel(
-        id: 'cropped_$timestamp',
-        fileName: fileName,
-        originalPath: originalPath,
-        thumbnailPath: thumbnailPath,
-        uploadDate: DateTime.now(),
-        fileSize: fileSize,
-      );
-
-      // Save metadata
-      await _saveMetadata(croppedPhoto);
+      // Save to PhotoService (this will move to app storage and update metadata)
+      final savedPhoto = await _photoService.saveCroppedPhoto(File(tempPath));
 
       widget.onPhotoCropped();
 
@@ -115,7 +99,7 @@ class _ImageCropPageState extends State<ImageCropPage> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Image cropped successfully!'),
+            content: Text('Image cropped and saved!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -380,19 +364,6 @@ class _ImageCropPageState extends State<ImageCropPage> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  onPressed: _isProcessing ? null : _showCollageDialog,
-                                  icon: const Icon(Icons.collections),
-                                  label: const Text('Make Collage'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.purple,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -422,93 +393,5 @@ class _ImageCropPageState extends State<ImageCropPage> {
     if (dx < 16 && dy > _cropHeight * scaleY - 16) return 'bl';
     if (dx > _cropWidth * scaleX - 16 && dy > _cropHeight * scaleY - 16) return 'br';
     return '';
-  }
-
-  void _showCollageDialog() async {
-    final photos = await _photoService.getPhotos();
-    if (photos.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You need at least 2 photos to make a collage.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-    showDialog(
-      context: context,
-      builder: (context) {
-        List<PhotoModel> selected = [];
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Select 2 Images for Collage'),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: photos.length,
-                  itemBuilder: (context, index) {
-                    final photo = photos[index];
-                    final isSelected = selected.contains(photo);
-                    return ListTile(
-                      leading: Image.file(
-                        File(photo.thumbnailPath),
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ),
-                      title: Text(photo.fileName),
-                      trailing: isSelected
-                          ? const Icon(Icons.check_circle, color: Colors.green)
-                          : const Icon(Icons.radio_button_unchecked),
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            selected.remove(photo);
-                          } else if (selected.length < 2) {
-                            selected.add(photo);
-                          }
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: selected.length == 2 ? () async {
-                    Navigator.of(context).pop();
-                    setState(() { _isProcessing = true; });
-                    final collage = await _photoService.createCollage(selected[0], selected[1]);
-                    setState(() { _isProcessing = false; });
-                    if (collage != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Collage created successfully!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Failed to create collage.'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  } : null,
-                  child: const Text('Create Collage'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 }

@@ -133,9 +133,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             MaterialPageRoute(builder: (context) => const PhotosPage()),
                           );
                         },
-                        icon: const Icon(Icons.photo_library),
-                        label: const Text('Photos'),
+                        icon: const Icon(Icons.photo_library, color: Colors.white),
+                        label: const Text('Photos', style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -157,9 +159,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             MaterialPageRoute(builder: (context) => const VideosPage()),
                           );
                         },
-                        icon: const Icon(Icons.videocam),
-                        label: const Text('Videos'),
+                        icon: const Icon(Icons.videocam, color: Colors.white),
+                        label: const Text('Videos', style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -227,7 +231,9 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             onPressed: _incrementCounter,
             tooltip: 'Increment',
-            child: const Icon(Icons.add),
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.add, color: Colors.white),
           ),
         ],
       ),
