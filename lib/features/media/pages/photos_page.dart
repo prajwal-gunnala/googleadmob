@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import '../models/photo_model.dart';
-import '../services/photo_service.dart';
+import '../../../core/models/photo_model.dart';
+import '../../../core/services/photo_service.dart';
 import 'photo_viewer_page.dart';
 
 class PhotosPage extends StatefulWidget {

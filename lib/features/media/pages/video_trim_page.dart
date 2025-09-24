@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:io';
-import '../models/video_model.dart';
-import '../services/video_service.dart';
+import '../../../core/models/video_model.dart';
+import '../../../core/services/video_service.dart';
 
 class VideoTrimPage extends StatefulWidget {
   final VideoModel video;

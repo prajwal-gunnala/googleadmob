@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image/image.dart' as img;
-import '../models/photo_model.dart';
-import '../services/photo_service.dart';
+import '../../../core/models/photo_model.dart';
+import '../../../core/services/photo_service.dart';
 
 class ImageCropPage extends StatefulWidget {
   final PhotoModel photo;

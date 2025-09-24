@@ -1,48 +1,47 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import '../models/photo_model.dart';
-import '../services/photo_service.dart';
-import '../pages/photo_viewer_page.dart';
+import '../../core/models/video_model.dart';
+import '../../core/services/video_service.dart';
+import 'pages/video_viewer_page.dart';
 
-class PhotosTabContent extends StatefulWidget {
-  const PhotosTabContent({super.key});
+class VideosTabContent extends StatefulWidget {
+  const VideosTabContent({super.key});
 
   @override
-  State<PhotosTabContent> createState() => _PhotosTabContentState();
+  State<VideosTabContent> createState() => _VideosTabContentState();
 }
 
-class _PhotosTabContentState extends State<PhotosTabContent> {
-  final PhotoService _photoService = PhotoService();
-  List<PhotoModel> _photos = [];
+class _VideosTabContentState extends State<VideosTabContent> {
+  final VideoService _videoService = VideoService();
+  List<VideoModel> _videos = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeAndLoadPhotos();
+    _initializeAndLoadVideos();
   }
 
-  Future<void> _initializeAndLoadPhotos() async {
+  Future<void> _initializeAndLoadVideos() async {
     try {
-      await _photoService.initialize();
-      await _loadPhotos();
+      await _videoService.initialize();
+      await _loadVideos();
     } catch (e) {
-      print('Error initializing photos: $e');
+      print('Error initializing videos: $e');
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _loadPhotos() async {
+  Future<void> _loadVideos() async {
     try {
-      final photos = await _photoService.getPhotos();
+      final videos = await _videoService.getVideos();
       setState(() {
-        _photos = photos;
+        _videos = videos;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading photos: $e');
+      print('Error loading videos: $e');
       setState(() {
         _isLoading = false;
       });
@@ -55,10 +54,10 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
         _isLoading = true;
       });
       
-      final photo = await _photoService.pickFromCamera();
-      if (photo != null) {
-        await _loadPhotos();
-        _showSnackBar('Photo captured successfully!', Colors.green);
+      final video = await _videoService.pickFromCamera();
+      if (video != null) {
+        await _loadVideos();
+        _showSnackBar('Video recorded successfully!', Colors.green);
       } else {
         setState(() {
           _isLoading = false;
@@ -68,7 +67,7 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
       setState(() {
         _isLoading = false;
       });
-      _showSnackBar('Failed to capture photo: $e', Colors.red);
+      _showSnackBar('Failed to record video: $e', Colors.red);
     }
   }
 
@@ -78,10 +77,10 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
         _isLoading = true;
       });
       
-      final photo = await _photoService.pickFromGallery();
-      if (photo != null) {
-        await _loadPhotos();
-        _showSnackBar('Photo added successfully!', Colors.green);
+      final video = await _videoService.pickFromGallery();
+      if (video != null) {
+        await _loadVideos();
+        _showSnackBar('Video added successfully!', Colors.green);
       } else {
         setState(() {
           _isLoading = false;
@@ -91,7 +90,7 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
       setState(() {
         _isLoading = false;
       });
-      _showSnackBar('Failed to add photo: $e', Colors.red);
+      _showSnackBar('Failed to add video: $e', Colors.red);
     }
   }
 
@@ -117,7 +116,7 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Add Photo',
+              'Add Video',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -125,15 +124,15 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
             ),
             const SizedBox(height: 20),
             ListTile(
-              leading: const Icon(Icons.camera_alt, color: Colors.blue),
-              title: const Text('Take Photo'),
+              leading: const Icon(Icons.videocam, color: Colors.red),
+              title: const Text('Record Video'),
               onTap: () {
                 Navigator.pop(context);
                 _pickFromCamera();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library, color: Colors.green),
+              leading: const Icon(Icons.video_library, color: Colors.blue),
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
@@ -160,18 +159,18 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
                   ),
                   SizedBox(height: 16),
-                  Text('Loading photos...'),
+                  Text('Loading videos...'),
                 ],
               ),
             )
-          : _photos.isEmpty
+          : _videos.isEmpty
               ? _buildEmptyState()
-              : _buildPhotoGrid(),
+              : _buildVideoGrid(),
       floatingActionButton: FloatingActionButton(
-        heroTag: "photos_fab",
+        heroTag: "videos_fab",
         onPressed: _showUploadOptions,
         backgroundColor: Colors.purple,
-        child: const Icon(Icons.add_a_photo),
+        child: const Icon(Icons.videocam),
       ),
     );
   }
@@ -182,13 +181,13 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.photo_library_outlined,
+            Icons.video_library_outlined,
             size: 80,
             color: Colors.grey.shade400,
           ),
           const SizedBox(height: 16),
           Text(
-            'No Photos Yet',
+            'No Videos Yet',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -197,7 +196,7 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap the + button to add your first photo',
+            'Tap the + button to add your first video',
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey.shade500,
@@ -207,8 +206,8 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: _showUploadOptions,
-            icon: const Icon(Icons.add_a_photo),
-            label: const Text('Add Photo'),
+            icon: const Icon(Icons.videocam),
+            label: const Text('Add Video'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.purple,
               foregroundColor: Colors.white,
@@ -220,7 +219,7 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
     );
   }
 
-  Widget _buildPhotoGrid() {
+  Widget _buildVideoGrid() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(
@@ -230,18 +229,18 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
           mainAxisSpacing: 8,
           childAspectRatio: 1,
         ),
-        itemCount: _photos.length,
+        itemCount: _videos.length,
         itemBuilder: (context, index) {
-          final photo = _photos[index];
-          return _buildPhotoItem(photo, index);
+          final video = _videos[index];
+          return _buildVideoItem(video, index);
         },
       ),
     );
   }
 
-  Widget _buildPhotoItem(PhotoModel photo, int index) {
+  Widget _buildVideoItem(VideoModel video, int index) {
     return GestureDetector(
-      onTap: () => _openPhotoViewer(photo, index),
+      onTap: () => _openVideoViewer(video, index),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -258,20 +257,32 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Photo image
-              Image.file(
-                File(photo.originalPath),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey.shade300,
-                    child: const Icon(
-                      Icons.broken_image,
-                      color: Colors.grey,
-                      size: 40,
-                    ),
-                  );
-                },
+              // Video placeholder
+              Container(
+                color: Colors.grey.shade300,
+                child: const Center(
+                  child: Icon(
+                    Icons.videocam,
+                    color: Colors.grey,
+                    size: 40,
+                  ),
+                ),
+              ),
+              
+              // Play button overlay
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
               ),
               
               // Gradient overlay for text
@@ -294,12 +305,26 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
                 ),
               ),
               
+              // Duration info
+              Positioned(
+                bottom: 4,
+                left: 8,
+                child: Text(
+                  video.durationFormatted,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              
               // Date info
               Positioned(
                 bottom: 4,
                 right: 8,
                 child: Text(
-                  '${photo.uploadDate.day}/${photo.uploadDate.month}',
+                  '${video.uploadDate.day}/${video.uploadDate.month}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -314,14 +339,14 @@ class _PhotosTabContentState extends State<PhotosTabContent> {
     );
   }
 
-  void _openPhotoViewer(PhotoModel photo, int index) {
+  void _openVideoViewer(VideoModel video, int index) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PhotoViewerPage(
-          photos: _photos,
+        builder: (context) => VideoViewerPage(
+          videos: _videos,
           initialIndex: index,
-          onPhotoDeleted: _loadPhotos,
+          onVideoDeleted: _loadVideos,
         ),
       ),
     );

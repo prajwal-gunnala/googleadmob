@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'models/reward_tracker.dart';
-import 'banner_ad.dart';
-import 'full_page_ad.dart';
-import 'reward_ad.dart';
+import '../../core/models/reward_tracker.dart';
+import '../../core/ads/banner_ad.dart';
+import '../../core/ads/full_page_ad.dart';
+import '../../core/ads/reward_ad.dart';
 
 class RewardsTab extends StatefulWidget {
   const RewardsTab({super.key});

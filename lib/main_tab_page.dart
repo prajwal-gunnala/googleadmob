@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'media_tab.dart';
-import 'nested_tabs_page.dart';
-import 'rewards_tab.dart';
+import 'features/media/media_tab.dart';
+import 'features/nested_tabs/nested_tabs_page.dart';
+import 'features/rewards/rewards_tab.dart';
 
 class MainTabPage extends StatefulWidget {
   const MainTabPage({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'app_open_ad_manager.dart';
+import 'core/ads/app_open_ad_manager.dart';
 import 'main_tab_page.dart';
 
 class SplashScreen extends StatefulWidget {

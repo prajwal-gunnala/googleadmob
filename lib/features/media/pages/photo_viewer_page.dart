@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'dart:io';
-import '../models/photo_model.dart';
-import '../services/photo_service.dart';
+import '../../../core/models/photo_model.dart';
+import '../../../core/services/photo_service.dart';
+import 'image_crop_page.dart';
 
 class PhotoViewerPage extends StatefulWidget {
   final List<PhotoModel> photos;
@@ -127,6 +128,20 @@ class _PhotoViewerPageState extends State<PhotoViewerPage> {
     }
   }
 
+  void _cropImage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageCropPage(
+          photo: _currentPhoto,
+          onPhotoCropped: () {
+            widget.onPhotoDeleted(); // Refresh the photo list
+          },
+        ),
+      ),
+    );
+  }
+
   void _showPhotoInfo() {
     showDialog(
       context: context,
@@ -198,6 +213,9 @@ class _PhotoViewerPageState extends State<PhotoViewerPage> {
                 case 'save':
                   _saveToGallery();
                   break;
+                case 'crop':
+                  _cropImage();
+                  break;
                 case 'delete':
                   _deletePhoto();
                   break;
@@ -209,6 +227,14 @@ class _PhotoViewerPageState extends State<PhotoViewerPage> {
                 child: ListTile(
                   leading: Icon(Icons.download),
                   title: Text('Save to Gallery'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'crop',
+                child: ListTile(
+                  leading: Icon(Icons.crop),
+                  title: Text('Crop Image'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),

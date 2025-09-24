@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import '../models/video_model.dart';
-import '../services/video_service.dart';
-import '../pages/video_viewer_page.dart';
+import 'dart:io';
+import '../../../core/models/video_model.dart';
+import '../../../core/services/video_service.dart';
+import 'video_viewer_page.dart';
 
-class VideosTabContent extends StatefulWidget {
-  const VideosTabContent({super.key});
+class VideosPage extends StatefulWidget {
+  const VideosPage({super.key});
 
   @override
-  State<VideosTabContent> createState() => _VideosTabContentState();
+  State<VideosPage> createState() => _VideosPageState();
 }
 
-class _VideosTabContentState extends State<VideosTabContent> {
+class _VideosPageState extends State<VideosPage> {
   final VideoService _videoService = VideoService();
   List<VideoModel> _videos = [];
   bool _isLoading = true;
+  Map<String, dynamic> _storageInfo = {};
 
   @override
   void initState() {
@@ -36,8 +38,11 @@ class _VideosTabContentState extends State<VideosTabContent> {
   Future<void> _loadVideos() async {
     try {
       final videos = await _videoService.getVideos();
+      final storageInfo = await _videoService.getStorageInfo();
+      
       setState(() {
-        _videos = videos;
+        _videos = videos.reversed.toList(); // Show newest first
+        _storageInfo = storageInfo;
         _isLoading = false;
       });
     } catch (e) {
@@ -146,18 +151,44 @@ class _VideosTabContentState extends State<VideosTabContent> {
     );
   }
 
+  void _openVideoViewer(VideoModel video, int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoViewerPage(
+          videos: _videos,
+          initialIndex: index,
+          onVideoDeleted: _loadVideos,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple.shade50,
+      appBar: AppBar(
+        title: const Text('Videos'),
+        centerTitle: true,
+        actions: [
+          if (_storageInfo.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  '${_storageInfo['videoCount']} • ${_storageInfo['totalSizeFormatted']}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+        ],
+      ),
       body: _isLoading
           ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
-                  ),
+                  CircularProgressIndicator(),
                   SizedBox(height: 16),
                   Text('Loading videos...'),
                 ],
@@ -167,9 +198,7 @@ class _VideosTabContentState extends State<VideosTabContent> {
               ? _buildEmptyState()
               : _buildVideoGrid(),
       floatingActionButton: FloatingActionButton(
-        heroTag: "videos_fab",
         onPressed: _showUploadOptions,
-        backgroundColor: Colors.purple,
         child: const Icon(Icons.videocam),
       ),
     );
@@ -209,8 +238,6 @@ class _VideosTabContentState extends State<VideosTabContent> {
             icon: const Icon(Icons.videocam),
             label: const Text('Add Video'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple,
-              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
@@ -257,17 +284,16 @@ class _VideosTabContentState extends State<VideosTabContent> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Video placeholder
-              Container(
-                color: Colors.grey.shade300,
-                child: const Center(
-                  child: Icon(
-                    Icons.videocam,
-                    color: Colors.grey,
-                    size: 40,
-                  ),
-                ),
-              ),
+              // Video thumbnail or placeholder
+              video.thumbnailExists
+                  ? Image.file(
+                      File(video.thumbnailPath),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildVideoPlaceholder();
+                      },
+                    )
+                  : _buildVideoPlaceholder(),
               
               // Play button overlay
               Center(
@@ -319,12 +345,12 @@ class _VideosTabContentState extends State<VideosTabContent> {
                 ),
               ),
               
-              // Date info
+              // File size info
               Positioned(
                 bottom: 4,
                 right: 8,
                 child: Text(
-                  '${video.uploadDate.day}/${video.uploadDate.month}',
+                  video.fileSizeFormatted,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -339,14 +365,14 @@ class _VideosTabContentState extends State<VideosTabContent> {
     );
   }
 
-  void _openVideoViewer(VideoModel video, int index) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => VideoViewerPage(
-          videos: _videos,
-          initialIndex: index,
-          onVideoDeleted: _loadVideos,
+  Widget _buildVideoPlaceholder() {
+    return Container(
+      color: Colors.grey.shade300,
+      child: const Center(
+        child: Icon(
+          Icons.videocam,
+          color: Colors.grey,
+          size: 40,
         ),
       ),
     );

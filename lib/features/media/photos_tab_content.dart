@@ -1,52 +1,48 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import '../models/video_model.dart';
-import '../services/video_service.dart';
-import 'video_viewer_page.dart';
+import '../../core/models/photo_model.dart';
+import '../../core/services/photo_service.dart';
+import 'pages/photo_viewer_page.dart';
 
-class VideosPage extends StatefulWidget {
-  const VideosPage({super.key});
+class PhotosTabContent extends StatefulWidget {
+  const PhotosTabContent({super.key});
 
   @override
-  State<VideosPage> createState() => _VideosPageState();
+  State<PhotosTabContent> createState() => _PhotosTabContentState();
 }
 
-class _VideosPageState extends State<VideosPage> {
-  final VideoService _videoService = VideoService();
-  List<VideoModel> _videos = [];
+class _PhotosTabContentState extends State<PhotosTabContent> {
+  final PhotoService _photoService = PhotoService();
+  List<PhotoModel> _photos = [];
   bool _isLoading = true;
-  Map<String, dynamic> _storageInfo = {};
 
   @override
   void initState() {
     super.initState();
-    _initializeAndLoadVideos();
+    _initializeAndLoadPhotos();
   }
 
-  Future<void> _initializeAndLoadVideos() async {
+  Future<void> _initializeAndLoadPhotos() async {
     try {
-      await _videoService.initialize();
-      await _loadVideos();
+      await _photoService.initialize();
+      await _loadPhotos();
     } catch (e) {
-      print('Error initializing videos: $e');
+      print('Error initializing photos: $e');
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _loadVideos() async {
+  Future<void> _loadPhotos() async {
     try {
-      final videos = await _videoService.getVideos();
-      final storageInfo = await _videoService.getStorageInfo();
-      
+      final photos = await _photoService.getPhotos();
       setState(() {
-        _videos = videos.reversed.toList(); // Show newest first
-        _storageInfo = storageInfo;
+        _photos = photos;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading videos: $e');
+      print('Error loading photos: $e');
       setState(() {
         _isLoading = false;
       });
@@ -59,10 +55,10 @@ class _VideosPageState extends State<VideosPage> {
         _isLoading = true;
       });
       
-      final video = await _videoService.pickFromCamera();
-      if (video != null) {
-        await _loadVideos();
-        _showSnackBar('Video recorded successfully!', Colors.green);
+      final photo = await _photoService.pickFromCamera();
+      if (photo != null) {
+        await _loadPhotos();
+        _showSnackBar('Photo captured successfully!', Colors.green);
       } else {
         setState(() {
           _isLoading = false;
@@ -72,7 +68,7 @@ class _VideosPageState extends State<VideosPage> {
       setState(() {
         _isLoading = false;
       });
-      _showSnackBar('Failed to record video: $e', Colors.red);
+      _showSnackBar('Failed to capture photo: $e', Colors.red);
     }
   }
 
@@ -82,10 +78,10 @@ class _VideosPageState extends State<VideosPage> {
         _isLoading = true;
       });
       
-      final video = await _videoService.pickFromGallery();
-      if (video != null) {
-        await _loadVideos();
-        _showSnackBar('Video added successfully!', Colors.green);
+      final photo = await _photoService.pickFromGallery();
+      if (photo != null) {
+        await _loadPhotos();
+        _showSnackBar('Photo added successfully!', Colors.green);
       } else {
         setState(() {
           _isLoading = false;
@@ -95,7 +91,7 @@ class _VideosPageState extends State<VideosPage> {
       setState(() {
         _isLoading = false;
       });
-      _showSnackBar('Failed to add video: $e', Colors.red);
+      _showSnackBar('Failed to add photo: $e', Colors.red);
     }
   }
 
@@ -121,7 +117,7 @@ class _VideosPageState extends State<VideosPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Add Video',
+              'Add Photo',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -129,15 +125,15 @@ class _VideosPageState extends State<VideosPage> {
             ),
             const SizedBox(height: 20),
             ListTile(
-              leading: const Icon(Icons.videocam, color: Colors.red),
-              title: const Text('Record Video'),
+              leading: const Icon(Icons.camera_alt, color: Colors.blue),
+              title: const Text('Take Photo'),
               onTap: () {
                 Navigator.pop(context);
                 _pickFromCamera();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.video_library, color: Colors.blue),
+              leading: const Icon(Icons.photo_library, color: Colors.green),
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
@@ -151,55 +147,31 @@ class _VideosPageState extends State<VideosPage> {
     );
   }
 
-  void _openVideoViewer(VideoModel video, int index) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => VideoViewerPage(
-          videos: _videos,
-          initialIndex: index,
-          onVideoDeleted: _loadVideos,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Videos'),
-        centerTitle: true,
-        actions: [
-          if (_storageInfo.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Center(
-                child: Text(
-                  '${_storageInfo['videoCount']} • ${_storageInfo['totalSizeFormatted']}',
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-            ),
-        ],
-      ),
+      backgroundColor: Colors.purple.shade50,
       body: _isLoading
           ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+                  ),
                   SizedBox(height: 16),
-                  Text('Loading videos...'),
+                  Text('Loading photos...'),
                 ],
               ),
             )
-          : _videos.isEmpty
+          : _photos.isEmpty
               ? _buildEmptyState()
-              : _buildVideoGrid(),
+              : _buildPhotoGrid(),
       floatingActionButton: FloatingActionButton(
+        heroTag: "photos_fab",
         onPressed: _showUploadOptions,
-        child: const Icon(Icons.videocam),
+        backgroundColor: Colors.purple,
+        child: const Icon(Icons.add_a_photo),
       ),
     );
   }
@@ -210,13 +182,13 @@ class _VideosPageState extends State<VideosPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.video_library_outlined,
+            Icons.photo_library_outlined,
             size: 80,
             color: Colors.grey.shade400,
           ),
           const SizedBox(height: 16),
           Text(
-            'No Videos Yet',
+            'No Photos Yet',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -225,7 +197,7 @@ class _VideosPageState extends State<VideosPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap the + button to add your first video',
+            'Tap the + button to add your first photo',
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey.shade500,
@@ -235,9 +207,11 @@ class _VideosPageState extends State<VideosPage> {
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: _showUploadOptions,
-            icon: const Icon(Icons.videocam),
-            label: const Text('Add Video'),
+            icon: const Icon(Icons.add_a_photo),
+            label: const Text('Add Photo'),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
@@ -246,7 +220,7 @@ class _VideosPageState extends State<VideosPage> {
     );
   }
 
-  Widget _buildVideoGrid() {
+  Widget _buildPhotoGrid() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(
@@ -256,18 +230,18 @@ class _VideosPageState extends State<VideosPage> {
           mainAxisSpacing: 8,
           childAspectRatio: 1,
         ),
-        itemCount: _videos.length,
+        itemCount: _photos.length,
         itemBuilder: (context, index) {
-          final video = _videos[index];
-          return _buildVideoItem(video, index);
+          final photo = _photos[index];
+          return _buildPhotoItem(photo, index);
         },
       ),
     );
   }
 
-  Widget _buildVideoItem(VideoModel video, int index) {
+  Widget _buildPhotoItem(PhotoModel photo, int index) {
     return GestureDetector(
-      onTap: () => _openVideoViewer(video, index),
+      onTap: () => _openPhotoViewer(photo, index),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -284,31 +258,20 @@ class _VideosPageState extends State<VideosPage> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Video thumbnail or placeholder
-              video.thumbnailExists
-                  ? Image.file(
-                      File(video.thumbnailPath),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildVideoPlaceholder();
-                      },
-                    )
-                  : _buildVideoPlaceholder(),
-              
-              // Play button overlay
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
+              // Photo image
+              Image.file(
+                File(photo.originalPath),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey.shade300,
+                    child: const Icon(
+                      Icons.broken_image,
+                      color: Colors.grey,
+                      size: 40,
+                    ),
+                  );
+                },
               ),
               
               // Gradient overlay for text
@@ -331,26 +294,12 @@ class _VideosPageState extends State<VideosPage> {
                 ),
               ),
               
-              // Duration info
-              Positioned(
-                bottom: 4,
-                left: 8,
-                child: Text(
-                  video.durationFormatted,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              
-              // File size info
+              // Date info
               Positioned(
                 bottom: 4,
                 right: 8,
                 child: Text(
-                  video.fileSizeFormatted,
+                  '${photo.uploadDate.day}/${photo.uploadDate.month}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -365,14 +314,14 @@ class _VideosPageState extends State<VideosPage> {
     );
   }
 
-  Widget _buildVideoPlaceholder() {
-    return Container(
-      color: Colors.grey.shade300,
-      child: const Center(
-        child: Icon(
-          Icons.videocam,
-          color: Colors.grey,
-          size: 40,
+  void _openPhotoViewer(PhotoModel photo, int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PhotoViewerPage(
+          photos: _photos,
+          initialIndex: index,
+          onPhotoDeleted: _loadPhotos,
         ),
       ),
     );
